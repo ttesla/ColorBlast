@@ -1,7 +1,10 @@
 
 [ ] Refactor code here... 
+[ ] Add pool Manager
+[ ] Input Service stuff
 
-
+[ ] Score calculation
+[ ] Calculate the amount of tiles for right positions to fall as new tiles
 [ ] New cubes spawn and fall logic
 [ ] Fall down cubes logic
 [x] Blast logic

@@ -1,6 +1,6 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Build;
 using UnityEngine;
 
 namespace ColorBlast
@@ -10,19 +10,25 @@ namespace ColorBlast
     /// </summary>
     public class Slot 
     {
-        public Tile TheTile { get; private set; }
-
+        public Tile TheTile     { get; private set; }
+        public int X            { get; private set; }
+        public int Y            { get; private set; }
+        public Vector3 Position { get; private set; }
         public bool IsEmpty => TheTile == null;
 
         public Slot(Tile tile, int x, int y) 
         {
-            SetTile(tile, x, y);
+            X = x;
+            Y = y;
+            Position = tile.transform.localPosition;
+            
+            SetTile(tile);
         }
 
-        public void SetTile(Tile tile, int x, int y) 
+        public void SetTile(Tile tile) 
         {
             TheTile = tile;
-            TheTile.SetCoord(x, y);
+            TheTile.SetCoord(X, Y);
         }
 
         public void Clear() 
@@ -35,6 +41,8 @@ namespace ColorBlast
     public class Board : MonoBehaviour
     {
         // TODO: Get Tiles from Pool
+        // TODO: Make a proper offset stuff
+        // TODO: Make it enable for 5x5, 5x8 upto 9x9 tiles
         public Tile[] Tiles;
 
         public Slot[,] BoardMap;
@@ -47,7 +55,7 @@ namespace ColorBlast
             {
                 for(int x = 0; x < width; x++) 
                 {
-                    var randomTile = Tiles[Random.Range(0, Tiles.Length)];
+                    var randomTile = Tiles[UnityEngine.Random.Range(0, Tiles.Length)];
                     var tile = GameObject.Instantiate(randomTile, transform);
                     
                     tile.transform.localPosition = new Vector3(x - 2.5f, -y, 0.0f);
@@ -64,11 +72,14 @@ namespace ColorBlast
             {
                 Debug.Log("Found tiles to pop!");
                 PopTiles(popTiles);
+
+                // TODO: Make a small delay here...
+                DropExistingTiles();
             }
         }
 
         /// <summary>
-        /// Try to find connected tiles to Pop with BFS search algorithm
+        /// Try to find connected tiles to Pop with BFS algorithm
         /// </summary>
         private bool FindPopTiles(Tile tile, out List<Tile> popTileList) 
         {
@@ -151,9 +162,81 @@ namespace ColorBlast
             }
         }
 
-        private void DropExistingTiles() 
+        private void DropExistingTiles()
         {
+            int programmerSanityCheck = 0;
 
+            while (true) 
+            {
+                // If this is false, we may have holes in the Board,
+                // we check again until no tile falls.
+                if (GravitySolver()) 
+                {
+                    break;
+                }
+
+                programmerSanityCheck++;
+
+                // This is here to check
+                if(programmerSanityCheck > 100) 
+                {
+                    Debug.LogError("Critic Error: Gravity solver ended up in a dead loop!");
+                    break;
+                }
+            }
+
+            ApplyTileMove();
+        }
+
+        private bool GravitySolver() 
+        {
+            int height = BoardMap.GetLength(0);
+            int width = BoardMap.GetLength(1);
+            bool solved = true;
+
+            // Apply gravitanional wave from bottom to top for faster resolution
+            for (int y = height - 1; y >= 0; y--)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    // Check if current slot is not empty and down below slot is empty
+                    var currentSlot = BoardMap[y, x];
+
+                    if (!currentSlot.IsEmpty)
+                    {
+                        int nextY = y + 1;
+
+                        if (nextY < height && BoardMap[nextY, x].IsEmpty)
+                        {
+                            // Then move current tile to the slot down below
+                            var belowSlot = BoardMap[nextY, x];
+                            belowSlot.SetTile(currentSlot.TheTile);
+                            currentSlot.Clear();
+                            belowSlot.TheTile.RecordMoveTo(belowSlot.Position);
+                            solved = false;
+                        }
+                    }
+                }
+            }
+
+            return solved;
+        }
+
+        private void ApplyTileMove() 
+        {
+            int height = BoardMap.GetLength(0);
+            int width = BoardMap.GetLength(1);
+            
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    if (!BoardMap[y, x].IsEmpty)
+                    {
+                        BoardMap[y, x].TheTile.ApplyMove();
+                    }
+                }
+            }
         }
 
         private void DropNewTiles() 

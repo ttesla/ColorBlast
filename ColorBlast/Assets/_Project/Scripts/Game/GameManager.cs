@@ -13,7 +13,7 @@ namespace ColorBlast
 
         public void Init()
         {
-            GameBoard.Init(5, 5);
+            GameBoard.Init(8, 8);
         }
     }
 }

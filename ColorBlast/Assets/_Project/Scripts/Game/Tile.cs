@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 namespace ColorBlast
 {
@@ -20,7 +21,9 @@ namespace ColorBlast
 
         public int X { get; private set; }
         public int Y { get; private set; }
-        
+
+        private Vector3 mTargetMovePos;
+        private bool mHasMovePos;
         
         public void SetCoord(int x, int y) 
         {
@@ -28,10 +31,19 @@ namespace ColorBlast
             Y = y;
         }
 
-        public void Move(Vector3 pos) 
+        public void RecordMoveTo(Vector3 pos) 
         {
-            transform.DOKill();
-            transform.DOLocalMove(pos, 0.1f).SetEase(Ease.OutElastic);
+            mTargetMovePos = pos;
+            mHasMovePos = true;
+        }
+
+        public void ApplyMove() 
+        {
+            if(mHasMovePos) 
+            {
+                transform.DOKill();
+                transform.DOLocalMove(mTargetMovePos, 0.3f).SetEase(Ease.OutBounce);
+            }
         }
 
         public void Pop() 
