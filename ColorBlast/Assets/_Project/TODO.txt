@@ -3,6 +3,9 @@
 [ ] Add pool Manager
 [ ] Input Service stuff
 
+[ ] Delay before extra move is possible!
+
+[ ] If board is deadlock, reset it
 [ ] Score calculation
 [ ] Calculate the amount of tiles for right positions to fall as new tiles
 [ ] New cubes spawn and fall logic

@@ -31,20 +31,35 @@ namespace ColorBlast
                 service.Init();
             }
         }
-
-        private void AddServices() 
-        {
-            // Add all services here. We may move these to a seperate method and add in Main also. 
-            mServices.Add(typeof(ISaveService), new DummySaveService());
-            mServices.Add(typeof(IAudioService), new AudioService());
-        }
-
+        
         public void Release()
         {
             foreach (var service in mServices.Values)
             {
                 service.Release();
             }
+        }
+
+        private void AddServices() 
+        {
+            // Add all services here. We may move these to a seperate method and add in Main also. 
+            mServices.Add(typeof(ISaveService), new DummySaveService());
+            mServices.Add(typeof(IAudioService), new AudioService());
+
+            Add<IAudioService>(new AudioService());
+        }
+
+        public void Add<T>(IService service)
+        {
+            if(!mServices.ContainsKey(typeof(T))) 
+            {
+                mServices.Add(typeof(T), service);
+            }
+            else 
+            {
+                Debug.LogError("This service is already added: " + typeof(T));
+            }
+            
         }
 
         public T Get<T>() 
@@ -59,19 +74,5 @@ namespace ColorBlast
                 return default(T);
             }
         }
-
-        #region HandyShortcuts
-
-        public IAudioService GetAudioService() 
-        {
-            return Get<IAudioService>();
-        }
-
-        public ISaveService GetSaveService() 
-        {
-            return Get<ISaveService>();
-        }
-
-        #endregion
     }
 }

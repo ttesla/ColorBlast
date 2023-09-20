@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,41 +6,10 @@ using UnityEngine;
 
 namespace ColorBlast
 {
-    /// <summary>
-    /// Slots are single Cell in the Board which holds the Tiles inside them
-    /// </summary>
-    public class Slot 
-    {
-        public Tile TheTile     { get; private set; }
-        public int X            { get; private set; }
-        public int Y            { get; private set; }
-        public Vector3 Position { get; private set; }
-        public bool IsEmpty => TheTile == null;
-
-        public Slot(Tile tile, int x, int y) 
-        {
-            X = x;
-            Y = y;
-            Position = tile.transform.localPosition;
-            
-            SetTile(tile);
-        }
-
-        public void SetTile(Tile tile) 
-        {
-            TheTile = tile;
-            TheTile.SetCoord(X, Y);
-        }
-
-        public void Clear() 
-        {
-            TheTile = null;
-        }
-    }
-
-
     public class Board : MonoBehaviour
     {
+        public float DelayAfterPop;
+
         // TODO: Get Tiles from Pool
         // TODO: Make a proper offset stuff
         // TODO: Make it enable for 5x5, 5x8 upto 9x9 tiles
@@ -47,8 +17,12 @@ namespace ColorBlast
 
         public Slot[,] BoardMap;
 
+        private IAudioService mAudioService;
+
         public void Init(int width, int height) 
         {
+            mAudioService = ServiceManager.Instance.Get<IAudioService>();
+
             BoardMap = new Slot[height, width];
 
             for(int y = 0; y < height; y++) 
@@ -66,15 +40,18 @@ namespace ColorBlast
 
         public void TryToPopTile(Tile tile) 
         {
-            Debug.Log("Try to Pop Tile!");
-            
+
+            Time.timeScale = 0.1f;
+
             if(FindPopTiles(tile, out List<Tile> popTiles)) 
             {
-                Debug.Log("Found tiles to pop!");
                 PopTiles(popTiles);
 
-                // TODO: Make a small delay here...
-                DropExistingTiles();
+                // Give some time for popping animations then make tiles fall... 
+                DOVirtual.DelayedCall(DelayAfterPop, () => 
+                {
+                    DropExistingTiles();
+                });
             }
         }
 
@@ -160,6 +137,9 @@ namespace ColorBlast
                 BoardMap[tile.Y, tile.X].Clear();
                 tile.Pop();
             }
+
+            // TODO: Play pop sound here
+            //mAudioService.Play()
         }
 
         private void DropExistingTiles()
@@ -177,7 +157,7 @@ namespace ColorBlast
 
                 programmerSanityCheck++;
 
-                // This is here to check
+                // This is here to check for infinite loop. Probably won't ever happen but you never know!
                 if(programmerSanityCheck > 100) 
                 {
                     Debug.LogError("Critic Error: Gravity solver ended up in a dead loop!");
