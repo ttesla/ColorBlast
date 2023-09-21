@@ -17,13 +17,25 @@ namespace ColorBlast
 
     public class Tile : MonoBehaviour
     {
-        public TileType TileType;
+        [SerializeField] private TileType TileType;
 
+        public const int BasicTileCount = 4;
+
+        public TileType TType => TileType;
         public int X { get; private set; }
         public int Y { get; private set; }
 
         private Vector3 mTargetMovePos;
         private bool mHasMovePos;
+
+        private const float MoveDuration = 0.3f;
+        private const float PopDuration  = 0.2f;
+        private PoolType mPoolType;
+
+        public void Init(PoolType poolType) 
+        {
+            mPoolType = poolType;
+        }
         
         public void SetCoord(int x, int y) 
         {
@@ -42,14 +54,20 @@ namespace ColorBlast
             if(mHasMovePos) 
             {
                 transform.DOKill();
-                transform.DOLocalMove(mTargetMovePos, 0.3f).SetEase(Ease.OutBounce);
+                transform.DOLocalMove(mTargetMovePos, MoveDuration).SetEase(Ease.OutBounce);
+                mHasMovePos = false;
             }
         }
 
         public void Pop() 
         {
-            gameObject.SetActive(false);
-            Debug.Log("Tile exploded");
+            transform.DOScale(Vector3.zero, PopDuration)
+                .SetEase(Ease.OutQuad)
+                .OnComplete(() => 
+                {
+                    // Return to pool
+                    ServiceManager.Instance.Get<IPoolService>().Return(mPoolType, gameObject);
+                });
         }
     }
 }

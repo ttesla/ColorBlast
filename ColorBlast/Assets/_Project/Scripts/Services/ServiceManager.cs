@@ -24,8 +24,6 @@ namespace ColorBlast
 
         public void Init() 
         {
-            AddServices();
-
             foreach(var service in mServices.Values) 
             {
                 service.Init();
@@ -38,15 +36,6 @@ namespace ColorBlast
             {
                 service.Release();
             }
-        }
-
-        private void AddServices() 
-        {
-            // Add all services here. We may move these to a seperate method and add in Main also. 
-            mServices.Add(typeof(ISaveService), new DummySaveService());
-            mServices.Add(typeof(IAudioService), new AudioService());
-
-            Add<IAudioService>(new AudioService());
         }
 
         public void Add<T>(IService service)

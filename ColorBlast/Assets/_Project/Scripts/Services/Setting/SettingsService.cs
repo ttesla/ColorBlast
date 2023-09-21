@@ -5,26 +5,21 @@ using Utility;
 
 namespace ColorBlast
 {
-    public class SaveService : ISaveService
+    public class SettingsService : ISettingsService
     {
         public void Init()
         {
-            Logman.Log("SaveService - Init");
+            Logman.Log("SettingService - Init");
         }
 
         public void Release()
         {
-            Logman.Log("SaveService - Release");
+            Logman.Log("SettingService - Release");
         }
 
-        public void Save()
+        public void Apply()
         {
-         
-        }
 
-        public void DeleteSave()
-        {
-         
         }
     }
 }

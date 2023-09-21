@@ -1,19 +1,35 @@
 
-[ ] Refactor code here... 
-[ ] Add pool Manager
-[ ] Input Service stuff
 
-[ ] Delay before extra move is possible!
-
-[ ] If board is deadlock, reset it
-[ ] Score calculation
-[ ] Calculate the amount of tiles for right positions to fall as new tiles
 [ ] New cubes spawn and fall logic
-[ ] Fall down cubes logic
-[x] Blast logic
-[ ] Blast Juice
-[ ] Dynamic map Size
-[ ] UI for Selecting Map Size
-[x] Bevel Cubes
+[ ] Calculate the amount of tiles for right positions to fall as new tiles
+
 [ ] Audio  
+[ ] Score calculation
+
+[ ] UI for Selecting Map Size
+
+[ ] Settings UI and Service
+
 [ ] Save System
+
+[ ] Special Tile
+
+[ ] Proper offset for the Board
+[ ] Dynamic camera size according to the size
+[ ] If board is deadlock, reset it
+
+[ ] Write a basic documentation
+[ ] Video
+
+[x] Refactor code here... 
+[x] Add pool Manager
+[x] Input Service stuff
+[x] Fall down cubes logic
+[x] Blast logic
+[x] Blast Juice
+[x] Dynamic map Size
+[x] Bevel Cubes
+
+
+// NICE TO HAVE //
+[ ] Prevent making move until animations finish

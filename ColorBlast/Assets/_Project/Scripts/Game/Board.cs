@@ -10,40 +10,96 @@ namespace ColorBlast
     {
         public float DelayAfterPop;
 
-        // TODO: Get Tiles from Pool
-        // TODO: Make a proper offset stuff
-        // TODO: Make it enable for 5x5, 5x8 upto 9x9 tiles
-        public Tile[] Tiles;
-
         public Slot[,] BoardMap;
 
+        //Service references
+        private IGameService mGameService;
         private IAudioService mAudioService;
+        private IInputService mInputService;
+        private IPoolService mPoolService;
 
-        public void Init(int width, int height) 
+        private void Start()
         {
+            mGameService  = ServiceManager.Instance.Get<IGameService>();
             mAudioService = ServiceManager.Instance.Get<IAudioService>();
+            mInputService = ServiceManager.Instance.Get<IInputService>();
+            mPoolService  = ServiceManager.Instance.Get<IPoolService>(); 
 
+            mGameService.SessionStarted += OnGameSessionStarted;
+            mInputService.Tapped        += OnTapped;
+        }
+
+        private void OnDisable()
+        {
+            mGameService.SessionStarted -= OnGameSessionStarted;
+            mInputService.Tapped        -= OnTapped;
+        }
+
+        private void OnTapped(Tile tile)
+        {
+            TryToPopTile(tile);
+        }
+
+        private void OnGameSessionStarted(SessionParameters sessionParams)
+        {
+            Init(sessionParams.Width, sessionParams.Height);
+        }
+
+        private void Init(int width, int height) 
+        {
             BoardMap = new Slot[height, width];
 
             for(int y = 0; y < height; y++) 
             {
                 for(int x = 0; x < width; x++) 
                 {
-                    var randomTile = Tiles[UnityEngine.Random.Range(0, Tiles.Length)];
-                    var tile = GameObject.Instantiate(randomTile, transform);
-                    
-                    tile.transform.localPosition = new Vector3(x - 2.5f, -y, 0.0f);
-                    BoardMap[y, x] = new Slot(tile, x, y);
+                    var randomTile = GetRandomBasicTile();
+                    randomTile.transform.SetParent(transform);
+
+                    randomTile.transform.localPosition = new Vector3(x - 2.5f, -y, 0.0f);
+                    BoardMap[y, x] = new Slot(randomTile, x, y);
                 }
             }
         }
 
-        public void TryToPopTile(Tile tile) 
+        /// <summary>
+        /// This is quite ugly but managable
+        /// </summary>
+        private Tile GetRandomBasicTile() 
         {
+            int random = UnityEngine.Random.Range(0, Tile.BasicTileCount);
+            Tile tile = null;
 
-            Time.timeScale = 0.1f;
+            PoolType poolType = PoolType.TileRed;
 
-            if(FindPopTiles(tile, out List<Tile> popTiles)) 
+            switch(random) 
+            {
+                case 0:
+                    poolType = PoolType.TileRed;        
+                    break;
+
+                case 1:
+                    poolType = PoolType.TileGreen;
+                    break;
+
+                case 2:
+                    poolType = PoolType.TileBlue;
+                    break;
+
+                case 3:
+                    poolType = PoolType.TileYellow;
+                    break;
+            }
+
+            tile = mPoolService.Get<Tile>(poolType);
+            tile.Init(poolType);
+
+            return tile;
+        }
+
+        private void TryToPopTile(Tile tile) 
+        {
+            if(FindConnectedTiles(tile, out List<Tile> popTiles)) 
             {
                 PopTiles(popTiles);
 
@@ -51,19 +107,31 @@ namespace ColorBlast
                 DOVirtual.DelayedCall(DelayAfterPop, () => 
                 {
                     DropExistingTiles();
-                });
+                }, false);
             }
+        }
+
+        private void PopTiles(List<Tile> tilesToPop)
+        {
+            foreach (Tile tile in tilesToPop)
+            {
+                BoardMap[tile.Y, tile.X].Clear();
+                tile.Pop();
+            }
+
+            // TODO: Play pop sound here
+            //mAudioService.Play()
         }
 
         /// <summary>
         /// Try to find connected tiles to Pop with BFS algorithm
         /// </summary>
-        private bool FindPopTiles(Tile tile, out List<Tile> popTileList) 
+        private bool FindConnectedTiles(Tile tile, out List<Tile> popTileList) 
         {
             bool result = false;
             popTileList = new List<Tile>();
 
-            var targetTileType = tile.TileType;
+            var targetTileType = tile.TType;
 
             HashSet<int> visited = new HashSet<int>();
             Queue<Tile> queue    = new Queue<Tile>();
@@ -77,7 +145,7 @@ namespace ColorBlast
                 var currentTile = queue.Dequeue();
                 popTileList.Add(currentTile);
 
-                // Visit neighbours //
+                // Visit neighbors //
 
                 // LEFT
                 int nextX = currentTile.X - 1;
@@ -121,25 +189,13 @@ namespace ColorBlast
                 {
                     var slot = BoardMap[y, x];
 
-                    if (!slot.IsEmpty && slot.TheTile.TileType == targetTileType)
+                    if (!slot.IsEmpty && slot.TheTile.TType == targetTileType)
                     {
                         queue.Enqueue(BoardMap[y, x].TheTile);
                         visited.Add(index);
                     }
                 }
             }
-        }
-
-        private void PopTiles(List<Tile> tilesToPop) 
-        {
-            foreach (Tile tile in tilesToPop)
-            {
-                BoardMap[tile.Y, tile.X].Clear();
-                tile.Pop();
-            }
-
-            // TODO: Play pop sound here
-            //mAudioService.Play()
         }
 
         private void DropExistingTiles()
@@ -168,13 +224,16 @@ namespace ColorBlast
             ApplyTileMove();
         }
 
+        /// <summary>
+        /// This makes tiles fall down if they have an empty space (Slot) underneath them.
+        /// </summary>
         private bool GravitySolver() 
         {
             int height = BoardMap.GetLength(0);
             int width = BoardMap.GetLength(1);
             bool solved = true;
 
-            // Apply gravitanional wave from bottom to top for faster resolution
+            // Apply gravitational wave from bottom to top for faster resolution
             for (int y = height - 1; y >= 0; y--)
             {
                 for (int x = 0; x < width; x++)
