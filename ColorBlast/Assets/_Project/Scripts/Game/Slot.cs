@@ -9,25 +9,34 @@ namespace ColorBlast
     /// </summary>
     public class Slot
     {
-        public Tile TheTile { get; private set; }
-        public int X { get; private set; }
-        public int Y { get; private set; }
+        public Tile TheTile     { get; private set; }
+        public int X            { get; private set; } // X index
+        public int Y            { get; private set; } // Y index
         public Vector3 Position { get; private set; }
         public bool IsEmpty => TheTile == null;
 
-        public Slot(Tile tile, int x, int y)
+        public Slot(Tile tile, int x, int y, Vector3 position)
         {
             X = x;
             Y = y;
-            Position = tile.transform.localPosition;
+            Position = position;
 
-            SetTile(tile);
+            SetTile(tile, true);
         }
 
-        public void SetTile(Tile tile)
+        /// <summary>
+        /// Puts the tile into the slot. 
+        /// Sets the position if desired.
+        /// </summary>
+        public void SetTile(Tile tile, bool setPosition)
         {
             TheTile = tile;
             TheTile.SetCoord(X, Y);
+
+            if(setPosition)
+            {
+                TheTile.SetPosition(Position);
+            }
         }
 
         public void Clear()

@@ -3,20 +3,26 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utility;
 
 namespace ColorBlast
 {
     public class Board : MonoBehaviour
     {
         public float DelayAfterPop;
+        public float FallAboveHeight;
 
-        public Slot[,] BoardMap;
+        //Board Matrix Map
+        private Slot[,] mBoardMap;
 
         //Service references
         private IGameService mGameService;
         private IAudioService mAudioService;
         private IInputService mInputService;
         private IPoolService mPoolService;
+
+        private BoardHelper mBoardHelper;
+        private bool mIgnoreInput;
 
         private void Start()
         {
@@ -37,6 +43,12 @@ namespace ColorBlast
 
         private void OnTapped(Tile tile)
         {
+            // Ignore input if previous move is not finished yet
+            if (mIgnoreInput)
+            {
+                return;
+            }
+
             TryToPopTile(tile);
         }
 
@@ -47,67 +59,35 @@ namespace ColorBlast
 
         private void Init(int width, int height) 
         {
-            BoardMap = new Slot[height, width];
+            mBoardMap = new Slot[height, width];
+            mBoardHelper = new BoardHelper(mBoardMap, mPoolService);
 
-            for(int y = 0; y < height; y++) 
+            for (int y = 0; y < height; y++) 
             {
                 for(int x = 0; x < width; x++) 
                 {
-                    var randomTile = GetRandomBasicTile();
+                    var randomTile = mBoardHelper.GetRandomBasicTile();
                     randomTile.transform.SetParent(transform);
 
-                    randomTile.transform.localPosition = new Vector3(x - 2.5f, -y, 0.0f);
-                    BoardMap[y, x] = new Slot(randomTile, x, y);
+                    var position = new Vector3(x - 2.5f, -y, 0.0f);
+                    mBoardMap[y, x] = new Slot(randomTile, x, y, position);
                 }
             }
         }
 
-        /// <summary>
-        /// This is quite ugly but managable
-        /// </summary>
-        private Tile GetRandomBasicTile() 
-        {
-            int random = UnityEngine.Random.Range(0, Tile.BasicTileCount);
-            Tile tile = null;
-
-            PoolType poolType = PoolType.TileRed;
-
-            switch(random) 
-            {
-                case 0:
-                    poolType = PoolType.TileRed;        
-                    break;
-
-                case 1:
-                    poolType = PoolType.TileGreen;
-                    break;
-
-                case 2:
-                    poolType = PoolType.TileBlue;
-                    break;
-
-                case 3:
-                    poolType = PoolType.TileYellow;
-                    break;
-            }
-
-            tile = mPoolService.Get<Tile>(poolType);
-            tile.Init(poolType);
-
-            return tile;
-        }
-
         private void TryToPopTile(Tile tile) 
         {
-            if(FindConnectedTiles(tile, out List<Tile> popTiles)) 
+            if(mBoardHelper.FindConnectedTiles(tile, out List<Tile> popTiles)) 
             {
+                mIgnoreInput = true;
                 PopTiles(popTiles);
 
-                // Give some time for popping animations then make tiles fall... 
+                // Give some time for popping animations then make new tiles fall... 
                 DOVirtual.DelayedCall(DelayAfterPop, () => 
                 {
-                    DropExistingTiles();
-                }, false);
+                    AfterPop();
+                }, 
+                false);
             }
         }
 
@@ -115,7 +95,7 @@ namespace ColorBlast
         {
             foreach (Tile tile in tilesToPop)
             {
-                BoardMap[tile.Y, tile.X].Clear();
+                mBoardMap[tile.Y, tile.X].Clear();
                 tile.Pop();
             }
 
@@ -123,171 +103,90 @@ namespace ColorBlast
             //mAudioService.Play()
         }
 
-        /// <summary>
-        /// Try to find connected tiles to Pop with BFS algorithm
-        /// </summary>
-        private bool FindConnectedTiles(Tile tile, out List<Tile> popTileList) 
+        private void AfterPop() 
         {
-            bool result = false;
-            popTileList = new List<Tile>();
+            DropExistingTiles();
+            mBoardHelper.DropNewTiles(transform, FallAboveHeight);
 
-            var targetTileType = tile.TType;
-
-            HashSet<int> visited = new HashSet<int>();
-            Queue<Tile> queue    = new Queue<Tile>();
-
-            queue.Enqueue(tile);
-            visited.Add(CoordToIndex(tile.X, tile.Y));
-
-            while(queue.Count > 0) 
+            EnsureBoardHasValidMove(() => 
             {
-                // Deque and add to pop tile list
-                var currentTile = queue.Dequeue();
-                popTileList.Add(currentTile);
-
-                // Visit neighbors //
-
-                // LEFT
-                int nextX = currentTile.X - 1;
-                int nextY = currentTile.Y;
-                CheckNextTileIsValid(nextX, nextY, targetTileType, visited, queue);
-
-                // RIGHT
-                nextX = currentTile.X + 1;
-                nextY = currentTile.Y;
-                CheckNextTileIsValid(nextX, nextY, targetTileType, visited, queue);
-
-                // UP
-                nextX = currentTile.X;
-                nextY = currentTile.Y - 1;
-                CheckNextTileIsValid(nextX, nextY, targetTileType, visited, queue);
-
-                // DOWN
-                nextX = currentTile.X;
-                nextY = currentTile.Y + 1;
-                CheckNextTileIsValid(nextX, nextY, targetTileType, visited, queue);
-
-            }
-
-            // If we have more than 1 to pop, then its true
-            result = popTileList.Count > 1;
-
-            return result;
+                // Now you can continue playing...
+                mIgnoreInput = false;
+            });
         }
 
-        private void CheckNextTileIsValid(int x, int y, TileType targetTileType, HashSet<int> visited, Queue<Tile> queue) 
+        private void EnsureBoardHasValidMove(Action result) 
         {
-            int height = BoardMap.GetLength(0);
-            int width  = BoardMap.GetLength(1);
-
-            if (x >= 0 && x < width &&
-                y >= 0 && y < height)
+            if (mBoardHelper.IsThereAnyValidMove())
             {
-                int index = CoordToIndex(x, y);
+                // Good, invoke the callback right away.
+                result?.Invoke();
+            }
+            else
+            {
+                // Not good, we try to get a valid board by trying some random trials...
+                Logman.LogWarning("No valid move, making a new random board!...");
+                StartCoroutine(MakeNewRandomBoardRoutine(result));
+            }
+        }
 
-                if (!visited.Contains(index))
+        private IEnumerator MakeNewRandomBoardRoutine(Action result) 
+        {
+            // First clear the board, then drop new tiles.
+            // But we keep doing this, until we are sure the board is valid
+            // This may deadlock the game. So we won't try it forever. 
+
+            int loopCounter = 0;
+
+            while (true) 
+            {
+                mBoardHelper.ClearTheBoard();
+                yield return new WaitForSeconds(DelayAfterPop * 2.0f);
+                mBoardHelper.DropNewTiles(transform, FallAboveHeight);
+
+                if (mBoardHelper.IsThereAnyValidMove()) 
                 {
-                    var slot = BoardMap[y, x];
+                    // Nice, we have a valid board now
+                    result?.Invoke();
+                    yield break;
+                }
 
-                    if (!slot.IsEmpty && slot.TheTile.TType == targetTileType)
-                    {
-                        queue.Enqueue(BoardMap[y, x].TheTile);
-                        visited.Add(index);
-                    }
+                // This is here to check for infinite loop.
+                if (loopCounter++ > 100)
+                {
+                    Debug.LogError("Critical Error: MakeNewRandomBoardRoutine failed to make a valid random board!");
+                    break;
                 }
             }
+            
+            // If we are here, we can continue with broken board.
+            // At least player can quit the app :)
+            result?.Invoke();
         }
 
         private void DropExistingTiles()
         {
-            int programmerSanityCheck = 0;
+            int loopCounter = 0;
 
             while (true) 
             {
                 // If this is false, we may have holes in the Board,
                 // we check again until no tile falls.
-                if (GravitySolver()) 
+                if (mBoardHelper.GravitySolver()) 
                 {
                     break;
                 }
 
-                programmerSanityCheck++;
-
-                // This is here to check for infinite loop. Probably won't ever happen but you never know!
-                if(programmerSanityCheck > 100) 
+                // This is here to check for infinite loop.
+                // Probably won't ever happen but you never know!
+                if(loopCounter++ > 100) 
                 {
-                    Debug.LogError("Critic Error: Gravity solver ended up in a dead loop!");
+                    Debug.LogError("Critical Error: Gravity solver ended up in a dead loop!");
                     break;
                 }
             }
 
-            ApplyTileMove();
-        }
-
-        /// <summary>
-        /// This makes tiles fall down if they have an empty space (Slot) underneath them.
-        /// </summary>
-        private bool GravitySolver() 
-        {
-            int height = BoardMap.GetLength(0);
-            int width = BoardMap.GetLength(1);
-            bool solved = true;
-
-            // Apply gravitational wave from bottom to top for faster resolution
-            for (int y = height - 1; y >= 0; y--)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    // Check if current slot is not empty and down below slot is empty
-                    var currentSlot = BoardMap[y, x];
-
-                    if (!currentSlot.IsEmpty)
-                    {
-                        int nextY = y + 1;
-
-                        if (nextY < height && BoardMap[nextY, x].IsEmpty)
-                        {
-                            // Then move current tile to the slot down below
-                            var belowSlot = BoardMap[nextY, x];
-                            belowSlot.SetTile(currentSlot.TheTile);
-                            currentSlot.Clear();
-                            belowSlot.TheTile.RecordMoveTo(belowSlot.Position);
-                            solved = false;
-                        }
-                    }
-                }
-            }
-
-            return solved;
-        }
-
-        private void ApplyTileMove() 
-        {
-            int height = BoardMap.GetLength(0);
-            int width = BoardMap.GetLength(1);
-            
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    if (!BoardMap[y, x].IsEmpty)
-                    {
-                        BoardMap[y, x].TheTile.ApplyMove();
-                    }
-                }
-            }
-        }
-
-        private void DropNewTiles() 
-        {
-
-        }
-
-        private int CoordToIndex(int x, int y) 
-        {
-            int width = BoardMap.GetLength(1);
-
-            return y * width + x;
+            mBoardHelper.ApplyTileMove();
         }
     }
 }

@@ -34,7 +34,7 @@ namespace ColorBlast
         {
             if(Input.GetKeyDown(KeyCode.Q)) 
             {
-                ServiceManager.Instance.Get<IGameService>().StartSession(6, 7);
+                ServiceManager.Instance.Get<IGameService>().StartSession(5, 5);
             }    
         }
 #endif

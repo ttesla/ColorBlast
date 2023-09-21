@@ -26,7 +26,7 @@ namespace ColorBlast
         public int Y { get; private set; }
 
         private Vector3 mTargetMovePos;
-        private bool mHasMovePos;
+        private bool mMoveDirtyFlag;
 
         private const float MoveDuration = 0.3f;
         private const float PopDuration  = 0.2f;
@@ -43,19 +43,24 @@ namespace ColorBlast
             Y = y;
         }
 
-        public void RecordMoveTo(Vector3 pos) 
+        public void SetPosition(Vector3 position) 
         {
-            mTargetMovePos = pos;
-            mHasMovePos = true;
+            transform.localPosition = position;
+        }
+
+        public void RecordMoveTo(Vector3 position) 
+        {
+            mTargetMovePos = position;
+            mMoveDirtyFlag = true;
         }
 
         public void ApplyMove() 
         {
-            if(mHasMovePos) 
+            if(mMoveDirtyFlag) 
             {
                 transform.DOKill();
                 transform.DOLocalMove(mTargetMovePos, MoveDuration).SetEase(Ease.OutBounce);
-                mHasMovePos = false;
+                mMoveDirtyFlag = false;
             }
         }
 
@@ -66,8 +71,14 @@ namespace ColorBlast
                 .OnComplete(() => 
                 {
                     // Return to pool
-                    ServiceManager.Instance.Get<IPoolService>().Return(mPoolType, gameObject);
+                    Recycle();
                 });
+        }
+
+        public void Recycle() 
+        {
+            transform.localScale = Vector3.one;
+            ServiceManager.Instance.Get<IPoolService>().Return(mPoolType, gameObject);
         }
     }
 }

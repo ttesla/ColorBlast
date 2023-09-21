@@ -1,26 +1,25 @@
 
 
-[ ] New cubes spawn and fall logic
-[ ] Calculate the amount of tiles for right positions to fall as new tiles
-
 [ ] Audio  
-[ ] Score calculation
-
 [ ] UI for Selecting Map Size
-
 [ ] Settings UI and Service
-
 [ ] Save System
 
 [ ] Special Tile
+[ ] Score calculation
+
+[ ] OnScreen Text
 
 [ ] Proper offset for the Board
 [ ] Dynamic camera size according to the size
-[ ] If board is deadlock, reset it
+
 
 [ ] Write a basic documentation
 [ ] Video
 
+[x] If board is deadlock, reset it
+[x] New cubes spawn and fall logic
+[x] Calculate the amount of tiles for right positions to fall as new tiles
 [x] Refactor code here... 
 [x] Add pool Manager
 [x] Input Service stuff
@@ -32,4 +31,4 @@
 
 
 // NICE TO HAVE //
-[ ] Prevent making move until animations finish
+[x] Prevent making move until animations finish
