@@ -29,3 +29,7 @@ MonoBehaviour:
     PoolPrefab: {fileID: 3124007662177052763, guid: b0365eb14238c394eb13bad087da7971,
       type: 3}
     Size: 20
+  - PoolType: 4
+    PoolPrefab: {fileID: 3124007662177052763, guid: d7a99fe54f9ab2d4b989ae8665dd1e21,
+      type: 3}
+    Size: 5

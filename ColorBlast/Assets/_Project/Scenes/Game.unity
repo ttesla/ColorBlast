@@ -937,6 +937,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Board
       objectReference: {fileID: 0}
+    - target: {fileID: 3915160300177837676, guid: f7fd902911a6aa14d8d892017a590d73,
+        type: 3}
+      propertyPath: SpecialItemChance
+      value: 0.02
+      objectReference: {fileID: 0}
     - target: {fileID: 3915160300177837677, guid: f7fd902911a6aa14d8d892017a590d73,
         type: 3}
       propertyPath: m_RootOrder

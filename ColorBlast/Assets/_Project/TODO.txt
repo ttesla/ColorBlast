@@ -1,12 +1,10 @@
 
-
-[ ] Score calculation
+[x] Special Tile
+[x] Score calculation
 [x] UI
 [x] Settings UI and Service
 [x] Service Init Order
-[ ] Save System
-[ ] Special Tile
-
+[x] Save System
 [x] Proper offset for the Board
 [x] Dynamic camera size according to the size
 [-] UI for Selecting Map Size (We have levels for this)
@@ -24,7 +22,7 @@
 [x] Bevel Cubes
 
 // NICE TO HAVE //
-[ ] Write a basic documentation
+[x] Write a basic documentation
 [ ] Gameplay Video
 [ ] OnScreen Text
 [ ] Screen shake

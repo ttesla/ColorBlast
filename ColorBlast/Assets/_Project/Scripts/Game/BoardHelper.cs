@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Search;
 using UnityEngine;
 
 
@@ -25,12 +26,40 @@ namespace ColorBlast
             mWidth  = mBoardMap.GetLength(1);
         }
 
-        /// <summary>
-        /// This is quite ugly but managable
-        /// </summary>
-        public Tile GetRandomBasicTile()
+        public Tile GetRandomTile(float specialChance) 
         {
-            int random = UnityEngine.Random.Range(0, Tile.BasicTileCount);
+            bool isSpecialTile = Random.Range(0.0f, 1.0f) < specialChance;
+
+            Tile tile = null;
+
+            if(isSpecialTile) 
+            {
+                tile = GetRandomSpecialTile();
+            }
+            else 
+            {
+                tile = GetRandomBasicTile();
+            }
+
+            return tile;
+        }
+
+        private Tile GetRandomSpecialTile() 
+        {
+            // Since we only have 1 special tile, just return it. 
+            var poolType = PoolType.TileBomb;
+            Tile tile = mPoolService.Get<Tile>(poolType);
+            tile.Init(poolType);
+
+            return tile;
+        }
+
+        /// <summary>
+        /// Give me a random basic tile
+        /// </summary>
+        private Tile GetRandomBasicTile()
+        {
+            int random = Random.Range(0, Tile.BasicTileCount);
             Tile tile = null;
 
             PoolType poolType = PoolType.TileRed;
@@ -53,11 +82,81 @@ namespace ColorBlast
                     poolType = PoolType.TileYellow;
                     break;
             }
-
+          
             tile = mPoolService.Get<Tile>(poolType);
             tile.Init(poolType);
 
             return tile;
+        }
+
+        public bool CheckSpecialTile(Tile tile, out List<Tile> popTileList) 
+        {
+            bool result = false;
+            popTileList = new List<Tile>();
+
+            if (tile.TType == TileType.Bomb)
+            {
+                // SELF
+                popTileList.Add(tile);
+
+                // LEFT
+                int nextX = tile.X - 1;
+                int nextY = tile.Y;
+                AddToBombExplosion(nextX, nextY, popTileList);
+
+                // LEFT UP
+                nextX = tile.X - 1;
+                nextY = tile.Y - 1;
+                AddToBombExplosion(nextX, nextY, popTileList);
+
+                // RIGHT
+                nextX = tile.X + 1;
+                nextY = tile.Y;
+                AddToBombExplosion(nextX, nextY, popTileList);
+
+                // RIGHT UP
+                nextX = tile.X + 1;
+                nextY = tile.Y - 1;
+                AddToBombExplosion(nextX, nextY, popTileList);
+
+                // UP
+                nextX = tile.X;
+                nextY = tile.Y - 1;
+                AddToBombExplosion(nextX, nextY, popTileList);
+
+                // DOWN
+                nextX = tile.X;
+                nextY = tile.Y + 1;
+                AddToBombExplosion(nextX, nextY, popTileList);
+
+                // LEFT DOWN
+                nextX = tile.X - 1;
+                nextY = tile.Y + 1;
+                AddToBombExplosion(nextX, nextY, popTileList);
+
+                // RIGHT DOWN
+                nextX = tile.X + 1;
+                nextY = tile.Y + 1;
+                AddToBombExplosion(nextX, nextY, popTileList);
+
+                result = true;
+            }
+
+            return result;
+        }
+
+        private void AddToBombExplosion(int x, int y, List<Tile> popTileList)
+        {
+            if (x >= 0 && x < mWidth &&
+                y >= 0 && y < mHeight)
+            {
+                var slot = mBoardMap[y, x];
+
+                if (!slot.IsEmpty)
+                {
+                    popTileList.Add(slot.TheTile);
+                }
+            }
         }
 
         /// <summary>
@@ -123,7 +222,7 @@ namespace ColorBlast
 
                     if (!slot.IsEmpty && slot.TheTile.TType == targetTileType)
                     {
-                        queue.Enqueue(mBoardMap[y, x].TheTile);
+                        queue.Enqueue(slot.TheTile);
                         visited.Add(index);
                     }
                 }
@@ -205,12 +304,23 @@ namespace ColorBlast
                     var vertical_1 = mBoardMap[y, x];
                     var vertical_2 = mBoardMap[y + 1, x];
 
-                    if(horizonTal_1.TheTile.TType == horizonTal_2.TheTile.TType) 
+                    if(horizonTal_1.TheTile.TType == horizonTal_2.TheTile.TType)
                     {
                         return true;
                     }
 
                     if(vertical_1.TheTile.TType == vertical_2.TheTile.TType) 
+                    {
+                        return true;
+                    }
+
+                    // Special Tiles
+                    if (horizonTal_1.TheTile.SpecialTile || horizonTal_2.TheTile.SpecialTile)
+                    {
+                        return true;
+                    }
+
+                    if (vertical_1.TheTile.SpecialTile || vertical_2.TheTile.SpecialTile)
                     {
                         return true;
                     }
@@ -221,6 +331,7 @@ namespace ColorBlast
             // I'm afraid my friend, we need a new random board!
             return false;
         }
+
 
         /// <summary>
         /// Tiles record move to position on themselves.
@@ -245,7 +356,7 @@ namespace ColorBlast
         /// <summary>
         /// Drop new tiles from heaven
         /// </summary>
-        public void DropNewTiles(Transform parent, float fallAboveHeight)
+        public void DropNewTiles(Transform parent, float fallAboveHeight, float specialChance)
         {
             var fallPosY   = mBoardMap[0, 0].Position.y + fallAboveHeight;
             var emptySlots = GetEmptySlots();
@@ -253,7 +364,7 @@ namespace ColorBlast
             // Create a new random tile for each empty slot
             foreach (var slot in emptySlots)
             {
-                var randomTile = GetRandomBasicTile();
+                var randomTile = GetRandomTile(specialChance);
                 randomTile.transform.SetParent(parent);
 
                 // Set tile's initial position somewhere above the board.

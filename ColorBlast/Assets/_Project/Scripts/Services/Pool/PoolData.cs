@@ -10,7 +10,8 @@ namespace ColorBlast
         TileRed,
         TileGreen,
         TileBlue,
-        TileYellow
+        TileYellow,
+        TileBomb
     }
 
     [Serializable]

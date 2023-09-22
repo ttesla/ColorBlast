@@ -12,7 +12,8 @@ namespace ColorBlast
         Red,
         Green,
         Blue,
-        Yellow
+        Yellow,
+        Bomb,
     }
 
     public class Tile : MonoBehaviour
@@ -23,8 +24,9 @@ namespace ColorBlast
         public const int BasicTileCount = 4;
 
         public TileType TType => TileType;
-        public int X { get; private set; }
-        public int Y { get; private set; }
+        public int X            { get; private set; }
+        public int Y            { get; private set; }
+        public bool SpecialTile { get; private set; }
 
         private Vector3 mTargetMovePos;
         private bool mMoveDirtyFlag;
@@ -42,8 +44,9 @@ namespace ColorBlast
                 return;
             }
 
-            var material = GetComponent<Renderer>().material;
+            var material   = GetComponent<Renderer>().material;
             material.color = TileDat.GetTileColor(TType);
+            SpecialTile    = TileDat.IsSpecialTile(TType);
 
             mPoolType = poolType;
             mInited = true;

@@ -13,6 +13,9 @@ namespace ColorBlast
         [SerializeField] private float DelayAfterPop;
         [SerializeField] private float FallAboveHeight;
 
+        [Range(0.0f, 1.0f)]
+        [SerializeField] private float SpecialItemChance; 
+
         [Header("Camera View Size")]
         [SerializeField] private float MinCameraSize;
         [SerializeField] private float MaxCameraSize;
@@ -119,7 +122,7 @@ namespace ColorBlast
             {
                 for(int x = 0; x < width; x++) 
                 {
-                    var randomTile = mBoardHelper.GetRandomBasicTile();
+                    var randomTile = mBoardHelper.GetRandomTile(SpecialItemChance);
                     randomTile.transform.SetParent(transform);
 
                     var position = new Vector3(x - xOffset, -(y - yOffset), 0.0f);
@@ -144,7 +147,19 @@ namespace ColorBlast
 
         private void TryToPopTile(Tile tile) 
         {
-            if(mBoardHelper.FindConnectedTiles(tile, out List<Tile> popTiles)) 
+            List<Tile> popTiles = null;
+            bool tilesPopped = false;
+
+            if(mBoardHelper.CheckSpecialTile(tile, out popTiles))
+            {
+                tilesPopped = true;
+            }
+            else if(mBoardHelper.FindConnectedTiles(tile, out popTiles)) 
+            {
+                tilesPopped = true;
+            }
+
+            if(tilesPopped)
             {
                 mAllowInput = false;
                 PopTiles(popTiles);
@@ -153,12 +168,12 @@ namespace ColorBlast
                 DOVirtual.DelayedCall(DelayAfterPop, () =>
                 {
                     // Session may be ended after the last pop, we don't continue then
-                    if (!mSessionEnded) 
+                    if (!mSessionEnded)
                     {
                         AfterPop();
                     }
-                        
-                },false);
+
+                }, false);
             }
         }
 
@@ -179,7 +194,7 @@ namespace ColorBlast
         private void AfterPop() 
         {
             DropExistingTiles();
-            mBoardHelper.DropNewTiles(transform, FallAboveHeight);
+            mBoardHelper.DropNewTiles(transform, FallAboveHeight, SpecialItemChance);
 
             EnsureBoardHasValidMove(() => 
             {
@@ -217,7 +232,7 @@ namespace ColorBlast
 
                 mBoardHelper.ClearTheBoard();
                 yield return new WaitForSeconds(DelayAfterPop * 2.0f);
-                mBoardHelper.DropNewTiles(transform, FallAboveHeight);
+                mBoardHelper.DropNewTiles(transform, FallAboveHeight, SpecialItemChance);
 
                 if (mBoardHelper.IsThereAnyValidMove()) 
                 {

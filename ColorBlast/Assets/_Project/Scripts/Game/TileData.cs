@@ -10,6 +10,7 @@ namespace ColorBlast
     {
         public TileType TType;
         public Color TColor;
+        public bool SpecialTile;
     }
 
     /// <summary>
@@ -32,6 +33,19 @@ namespace ColorBlast
             {
                 return Color.magenta;
             }
+        }
+
+        public bool IsSpecialTile(TileType tileType) 
+        {
+            var tile = Tiles.Find(x => x.TType == tileType);
+            bool result = false;
+
+            if (tile != null)
+            {
+                result = tile.SpecialTile;
+            }
+
+            return result;
         }
     }
 }
