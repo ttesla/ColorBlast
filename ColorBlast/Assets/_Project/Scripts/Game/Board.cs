@@ -22,7 +22,7 @@ namespace ColorBlast
         private IPoolService mPoolService;
 
         private BoardHelper mBoardHelper;
-        private bool mIgnoreInput;
+        private bool mAllowInput;
 
         private void Start()
         {
@@ -43,13 +43,10 @@ namespace ColorBlast
 
         private void OnTapped(Tile tile)
         {
-            // Ignore input if previous move is not finished yet
-            if (mIgnoreInput)
+            if (mAllowInput)
             {
-                return;
+                TryToPopTile(tile);
             }
-
-            TryToPopTile(tile);
         }
 
         private void OnGameSessionStarted(SessionParameters sessionParams)
@@ -61,7 +58,9 @@ namespace ColorBlast
         {
             mBoardMap = new Slot[height, width];
             mBoardHelper = new BoardHelper(mBoardMap, mPoolService);
+            mAllowInput = false;
 
+            // Setup the board for the first time
             for (int y = 0; y < height; y++) 
             {
                 for(int x = 0; x < width; x++) 
@@ -73,13 +72,20 @@ namespace ColorBlast
                     mBoardMap[y, x] = new Slot(randomTile, x, y, position);
                 }
             }
+
+            // Check if the board is valid
+            EnsureBoardHasValidMove(() => 
+            {
+                // We can play now.
+                mAllowInput = true;
+            });
         }
 
         private void TryToPopTile(Tile tile) 
         {
             if(mBoardHelper.FindConnectedTiles(tile, out List<Tile> popTiles)) 
             {
-                mIgnoreInput = true;
+                mAllowInput = false;
                 PopTiles(popTiles);
 
                 // Give some time for popping animations then make new tiles fall... 
@@ -99,8 +105,7 @@ namespace ColorBlast
                 tile.Pop();
             }
 
-            // TODO: Play pop sound here
-            //mAudioService.Play()
+            mAudioService.PlaySfx(SfxType.Pop);
         }
 
         private void AfterPop() 
@@ -111,7 +116,7 @@ namespace ColorBlast
             EnsureBoardHasValidMove(() => 
             {
                 // Now you can continue playing...
-                mIgnoreInput = false;
+                mAllowInput = true;
             });
         }
 
@@ -140,6 +145,8 @@ namespace ColorBlast
 
             while (true) 
             {
+                mAudioService.PlaySfx(SfxType.BoardShuffle);
+
                 mBoardHelper.ClearTheBoard();
                 yield return new WaitForSeconds(DelayAfterPop * 2.0f);
                 mBoardHelper.DropNewTiles(transform, FallAboveHeight);

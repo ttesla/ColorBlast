@@ -18,6 +18,7 @@ namespace ColorBlast
 
         [Header("Scene Services")]
         [SerializeField] private InputService InputService;
+        [SerializeField] private AudioService AudioService;
 
         private void Awake()
         {
@@ -34,7 +35,7 @@ namespace ColorBlast
         {
             if(Input.GetKeyDown(KeyCode.Q)) 
             {
-                ServiceManager.Instance.Get<IGameService>().StartSession(5, 5);
+                ServiceManager.Instance.Get<IGameService>().StartSession(3, 2);
             }    
         }
 #endif
@@ -61,7 +62,7 @@ namespace ColorBlast
         /// </summary>
         private void AddServices() 
         {
-            ServiceManager.Instance.Add<IAudioService>(new AudioService());
+            ServiceManager.Instance.Add<IAudioService>(AudioService);
             ServiceManager.Instance.Add<ISaveService>(new SaveService());
             ServiceManager.Instance.Add<IGameService>(new GameService());
             ServiceManager.Instance.Add<ISettingsService>(new SettingsService());

@@ -20,14 +20,19 @@ namespace ColorBlast
             Debug.Log("DummyAudioService - Release");
         }
 
-        public void Play(AudioClip audioClip)
+        public void PlaySfx(SfxType sfxType)
         {
-            Debug.Log("DummyAudioService - Play AudioClip: " + audioClip.name);
+            Debug.Log("DummyAudioService - PlaySfx: " + sfxType);
         }
 
-        public void Play(AudioSource audioSource, AudioClip audioClip)
+        public void SetEnableSfx(bool enabled)
         {
-            Debug.Log("DummyAudioService - Play AudioSource: " + audioSource.name + ", AudioClip: " + audioClip.name);
+            Debug.Log("DummyAudioService - SetEnableSfx: " + enabled);
+        }
+
+        public void SetMute(bool isMute)
+        {
+            Debug.Log("DummyAudioService - SetMute: " + isMute);
         }
     }
 }

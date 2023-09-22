@@ -45,4 +45,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DelayAfterPop: 0.2
-  FallAboveHeight: 3
+  FallAboveHeight: 5

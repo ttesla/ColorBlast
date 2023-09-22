@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace ColorBlast
 {
     public interface IAudioService : IService
     {
-        void Play(AudioClip audioClip);
-        void Play(AudioSource audioSource, AudioClip audioClip);
+        public void PlaySfx(SfxType sfxType);
+        public void SetEnableSfx(bool enabled);
+        public void SetMute(bool isMute);
     }
 }
