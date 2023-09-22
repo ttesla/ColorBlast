@@ -9,6 +9,7 @@ namespace ColorBlast
     {
         event Action<Level> LevelLoaded;
         event Action LevelCompleted;
+        event Action<List<LevelGoal>> LevelGoalUpdated;
 
         void LoadLevel(int levelIndex);
         int GetTotalLevelCount();

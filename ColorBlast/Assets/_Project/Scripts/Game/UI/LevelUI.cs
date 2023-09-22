@@ -4,18 +4,16 @@ using UnityEngine;
 
 namespace ColorBlast
 {
-    public class LevelUI : MonoBehaviour
+    public class LevelUI : MonoBehaviour, IWindow
     {
-        // Start is called before the first frame update
-        void Start()
+        public void Open()
         {
-        
+            gameObject.SetActive(true);
         }
 
-        // Update is called once per frame
-        void Update()
+        public void Close()
         {
-        
+            gameObject.SetActive(false);
         }
     }
 }

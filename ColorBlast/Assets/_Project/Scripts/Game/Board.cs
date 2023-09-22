@@ -30,16 +30,20 @@ namespace ColorBlast
         private BoardHelper mBoardHelper;
         private bool mAllowInput;
 
-        private void Start()
+        private void Awake()
         {
             mGameService  = ServiceManager.Instance.Get<IGameService>();
             mAudioService = ServiceManager.Instance.Get<IAudioService>();
             mInputService = ServiceManager.Instance.Get<IInputService>();
             mPoolService  = ServiceManager.Instance.Get<IPoolService>();
             mLevelService = ServiceManager.Instance.Get<ILevelService>();
+        }
 
+        private void OnEnable()
+        {
             mLevelService.LevelLoaded   += OnLevelLoaded;
             mGameService.SessionStarted += OnGameSessionStarted;
+            mGameService.SessionEnded   += OnGameSessionEnded;
             mInputService.Tapped        += OnTapped;
         }
 
@@ -47,6 +51,7 @@ namespace ColorBlast
         {
             mLevelService.LevelLoaded   -= OnLevelLoaded;
             mGameService.SessionStarted -= OnGameSessionStarted;
+            mGameService.SessionEnded   -= OnGameSessionEnded;
             mInputService.Tapped        -= OnTapped;
         }
 
@@ -73,6 +78,16 @@ namespace ColorBlast
                 // We can play now.
                 mAllowInput = true;
             });
+        }
+
+        private void OnGameSessionEnded()
+        {
+            if(mBoardHelper != null) 
+            {
+                mBoardHelper.ClearTheBoard();
+            }
+            
+            mAllowInput = false;
         }
 
         #endregion

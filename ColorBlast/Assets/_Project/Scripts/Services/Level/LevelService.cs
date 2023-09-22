@@ -10,6 +10,7 @@ namespace ColorBlast
     {
         public event Action<Level> LevelLoaded;
         public event Action LevelCompleted;
+        public event Action<List<LevelGoal>> LevelGoalUpdated;
 
         private LevelData mLevelData;
 
@@ -63,6 +64,9 @@ namespace ColorBlast
                     goal.Count = 0;
                 }
             }
+
+            // Broadcast latest goal stats
+            LevelGoalUpdated?.Invoke(mCurrentGoals);
 
             // Check level complete
             if (CheckAllGoalsAreCompleted()) 

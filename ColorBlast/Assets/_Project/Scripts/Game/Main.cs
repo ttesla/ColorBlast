@@ -3,14 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using Utility;
 
 namespace ColorBlast
 {
     /// <summary>
     /// Main entry point of the game. 
     /// It executes before than other scripts,
+    /// 
+    /// *** THIS SCRIPS IS ADDED TO SCRIPT EXECUTION ORDER ***
     /// </summary>
-    [DefaultExecutionOrder(-1)]
+    //[DefaultExecutionOrder(-1)] // This also works but other method is more explicit
     public class Main : MonoBehaviour
     {
         [Header("Game Data")]
@@ -101,6 +104,8 @@ namespace ColorBlast
             ServiceManager.Instance.Add<IPoolService>(new PoolService(PoolDat));
             ServiceManager.Instance.Add<IInputService>(InputService);
             ServiceManager.Instance.Add<IAudioService>(AudioService);
+
+            Logman.Log("All services are added!");
         }
     }
 }
