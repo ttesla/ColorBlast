@@ -1,4 +1,6 @@
 
+using UnityEngine;
+
 namespace ColorBlast
 {
     /// <summary>

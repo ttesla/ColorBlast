@@ -15,5 +15,5 @@ MonoBehaviour:
   AppSettings:
     TargetFrameRate: 60
   TweenSettings:
-    TweenCapacity: 100
+    TweenCapacity: 200
     SequenceCapacity: 20

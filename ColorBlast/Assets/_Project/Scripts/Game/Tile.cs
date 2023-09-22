@@ -18,6 +18,7 @@ namespace ColorBlast
     public class Tile : MonoBehaviour
     {
         [SerializeField] private TileType TileType;
+        [SerializeField] private TileData TileDat;
 
         public const int BasicTileCount = 4;
 
@@ -35,6 +36,9 @@ namespace ColorBlast
         public void Init(PoolType poolType) 
         {
             mPoolType = poolType;
+
+            var material = GetComponent<Renderer>().material;
+            material.color = TileDat.GetTileColor(TType);
         }
         
         public void SetCoord(int x, int y) 

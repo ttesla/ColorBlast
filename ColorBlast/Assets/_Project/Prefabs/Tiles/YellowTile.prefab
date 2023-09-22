@@ -111,3 +111,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TileType: 3
+  TileDat: {fileID: 11400000, guid: a51300b1afab63f42bec15712ba07b22, type: 2}

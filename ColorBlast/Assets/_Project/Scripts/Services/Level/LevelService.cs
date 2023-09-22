@@ -12,8 +12,9 @@ namespace ColorBlast
         public event Action LevelCompleted;
         public event Action<List<LevelGoal>> LevelGoalUpdated;
 
-        private LevelData mLevelData;
 
+
+        private LevelData mLevelData;
         private List<LevelGoal> mCurrentGoals;
 
         public LevelService(LevelData levelData) 
@@ -54,6 +55,11 @@ namespace ColorBlast
         public List<Level> GetLevelList()
         {
             return mLevelData.LevelList;
+        }
+
+        public List<LevelGoal> GetLevelGoalList() 
+        {
+            return mCurrentGoals;
         }
 
         public void NotifyTilePop(TileType tileType, int count)

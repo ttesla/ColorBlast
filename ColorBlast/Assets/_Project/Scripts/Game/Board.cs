@@ -157,6 +157,9 @@ namespace ColorBlast
             {
                 mBoardMap[tile.Y, tile.X].Clear();
                 tile.Pop();
+
+                // Notify level service when a tile Pops
+                mLevelService.NotifyTilePop(tile.TType, 1);
             }
 
             mAudioService.PlaySfx(SfxType.Pop);

@@ -36,7 +36,7 @@ namespace ColorBlast
             // If the list is populated before, skip
             if (!mListPopulated) 
             {
-                PopulateList();
+                PopulateLevelList();
             }
         }
 
@@ -51,15 +51,13 @@ namespace ColorBlast
             Close();
         }
 
-        private void PopulateList() 
+        private void PopulateLevelList() 
         {
             var levels = mLevelService.GetLevelList();
 
             for(int i = 0; i < levels.Count; i++) 
             {
-                var levelItemUI = GameObject.Instantiate(LevelItemUIPrefab, ItemContainerTransform)
-                                            .GetComponent<LevelItemUI>();
-
+                var levelItemUI = GameObject.Instantiate(LevelItemUIPrefab, ItemContainerTransform);
                 levelItemUI.Fill(i + 1, levels[i]);
             }
 
