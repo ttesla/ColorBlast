@@ -55,7 +55,7 @@ namespace ColorBlast
 
         private void InputUpdate()
         {
-#if UNITY_EDITOR || UNITY_STANDALONE
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBGL
             if (Input.GetMouseButtonDown(0))
             {
                 PerformRaycast(Input.mousePosition);
