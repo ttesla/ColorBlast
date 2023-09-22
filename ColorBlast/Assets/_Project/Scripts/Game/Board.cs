@@ -9,8 +9,13 @@ namespace ColorBlast
 {
     public class Board : MonoBehaviour
     {
-        public float DelayAfterPop;
-        public float FallAboveHeight;
+        [Header("Board Settings")]
+        [SerializeField] private float DelayAfterPop;
+        [SerializeField] private float FallAboveHeight;
+
+        [Header("Camera View Size")]
+        [SerializeField] private float MinCameraSize;
+        [SerializeField] private float MaxCameraSize;
 
         //Board Matrix Map
         private Slot[,] mBoardMap;
@@ -20,6 +25,7 @@ namespace ColorBlast
         private IAudioService mAudioService;
         private IInputService mInputService;
         private IPoolService mPoolService;
+        private ILevelService mLevelService;
 
         private BoardHelper mBoardHelper;
         private bool mAllowInput;
@@ -29,16 +35,26 @@ namespace ColorBlast
             mGameService  = ServiceManager.Instance.Get<IGameService>();
             mAudioService = ServiceManager.Instance.Get<IAudioService>();
             mInputService = ServiceManager.Instance.Get<IInputService>();
-            mPoolService  = ServiceManager.Instance.Get<IPoolService>(); 
+            mPoolService  = ServiceManager.Instance.Get<IPoolService>();
+            mLevelService = ServiceManager.Instance.Get<ILevelService>();
 
+            mLevelService.LevelLoaded   += OnLevelLoaded;
             mGameService.SessionStarted += OnGameSessionStarted;
             mInputService.Tapped        += OnTapped;
         }
 
         private void OnDisable()
         {
+            mLevelService.LevelLoaded   -= OnLevelLoaded;
             mGameService.SessionStarted -= OnGameSessionStarted;
             mInputService.Tapped        -= OnTapped;
+        }
+
+        #region ServiceEvents
+
+        private void OnLevelLoaded(Level level)
+        {
+            CreateBoard(level.Width, level.Height);
         }
 
         private void OnTapped(Tile tile)
@@ -49,16 +65,32 @@ namespace ColorBlast
             }
         }
 
-        private void OnGameSessionStarted(SessionParameters sessionParams)
+        private void OnGameSessionStarted()
         {
-            Init(sessionParams.Width, sessionParams.Height);
+            // Check if the board is valid
+            EnsureBoardHasValidMove(() =>
+            {
+                // We can play now.
+                mAllowInput = true;
+            });
         }
 
-        private void Init(int width, int height) 
+        #endregion
+
+        private void CreateBoard(int width, int height) 
         {
-            mBoardMap = new Slot[height, width];
+            // If we already created before, clear the old board.
+            if(mBoardHelper != null) 
+            {
+                mBoardHelper.ClearTheBoard();
+            }
+
+            mBoardMap    = new Slot[height, width];
             mBoardHelper = new BoardHelper(mBoardMap, mPoolService);
-            mAllowInput = false;
+            mAllowInput  = false;
+
+            float xOffset = width  / 2.0f - 0.5f;
+            float yOffset = height / 2.0f;
 
             // Setup the board for the first time
             for (int y = 0; y < height; y++) 
@@ -68,17 +100,24 @@ namespace ColorBlast
                     var randomTile = mBoardHelper.GetRandomBasicTile();
                     randomTile.transform.SetParent(transform);
 
-                    var position = new Vector3(x - 2.5f, -y, 0.0f);
+                    var position = new Vector3(x - xOffset, -(y - yOffset), 0.0f);
                     mBoardMap[y, x] = new Slot(randomTile, x, y, position);
                 }
             }
 
-            // Check if the board is valid
-            EnsureBoardHasValidMove(() => 
-            {
-                // We can play now.
-                mAllowInput = true;
-            });
+            AdjustCameraViewSize(width);
+        }
+
+        private void AdjustCameraViewSize(int width) 
+        {
+            // These calculations are tailored for Portrait orientation.
+            float minRatio     = (float)GameConstants.MinBoardSize / GameConstants.MaxBoardSize;
+            float ratio        = (float)width / GameConstants.MaxBoardSize;
+            float screenRatio  = ((float)Screen.width / Screen.height) * 2.11f;
+            float screenFactor = 1.0f / screenRatio;
+
+            var result = MathUtil.Remap(minRatio, 1.0f, MinCameraSize, MaxCameraSize, ratio);
+            Camera.main.orthographicSize = result * screenFactor;
         }
 
         private void TryToPopTile(Tile tile) 

@@ -13,7 +13,7 @@ namespace ColorBlast
 
         private LevelData mLevelData;
 
-        public List<LevelGoal> mCurrentGoals;
+        private List<LevelGoal> mCurrentGoals;
 
         public LevelService(LevelData levelData) 
         {

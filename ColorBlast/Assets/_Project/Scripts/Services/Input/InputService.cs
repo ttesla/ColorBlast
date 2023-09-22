@@ -26,7 +26,7 @@ namespace ColorBlast
             Logman.Log("InputService - Init");
         }
 
-        private void OnSessionStarted(SessionParameters obj)
+        private void OnSessionStarted()
         {
             mSessionStarted = true;
         }

@@ -5,10 +5,10 @@ namespace ColorBlast
 {
     public interface IGameService : IService
     {
-        event Action<SessionParameters> SessionStarted;
+        event Action SessionStarted;
         event Action SessionEnded;
 
-        void StartSession(int width, int height);
+        void StartSession();
         void EndSession();
     }
 }

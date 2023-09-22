@@ -1,24 +1,16 @@
 
 
-
+[ ] UI
 [ ] Settings UI and Service
-
 [ ] Service Init Order
 [ ] Save System
-
 [ ] Special Tile
 [ ] Score calculation
-
 [ ] OnScreen Text
 
-[ ] Proper offset for the Board
-[ ] Dynamic camera size according to the size
 
-
-
-[ ] Write a basic documentation
-[ ] Video
-
+[x] Proper offset for the Board
+[x] Dynamic camera size according to the size
 [-] UI for Selecting Map Size (We have levels for this)
 [x] Audio  
 [x] If board is deadlock, reset it
@@ -33,6 +25,7 @@
 [x] Dynamic map Size
 [x] Bevel Cubes
 
-
 // NICE TO HAVE //
+[ ] Write a basic documentation
+[ ] Video
 [x] Prevent making move until animations finish

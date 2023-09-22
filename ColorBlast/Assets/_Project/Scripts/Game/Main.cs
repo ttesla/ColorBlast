@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace ColorBlast
@@ -31,28 +32,37 @@ namespace ColorBlast
             StartInit();
         }
 
+        private void OnDisable()
+        {
+            ReleaseServices();
+        }
+
 #if UNITY_EDITOR
         private void Update()
         {
             if(Input.GetKeyDown(KeyCode.Q)) 
             {
-                ServiceManager.Instance.Get<IGameService>().StartSession(5, 5);
+                ServiceManager.Instance.Get<ILevelService>().LoadLevel(0);
             }
             else if (Input.GetKeyDown(KeyCode.W))
             {
-                ServiceManager.Instance.Get<IGameService>().StartSession(6, 6);
+                ServiceManager.Instance.Get<ILevelService>().LoadLevel(1);
             }
             else if (Input.GetKeyDown(KeyCode.E))
             {
-                ServiceManager.Instance.Get<IGameService>().StartSession(7, 7);
+                ServiceManager.Instance.Get<ILevelService>().LoadLevel(2);
             }
             else if (Input.GetKeyDown(KeyCode.R))
             {
-                ServiceManager.Instance.Get<IGameService>().StartSession(8, 8);
+                ServiceManager.Instance.Get<ILevelService>().LoadLevel(3);
             }
             else if (Input.GetKeyDown(KeyCode.T))
             {
-                ServiceManager.Instance.Get<IGameService>().StartSession(9, 9);
+                ServiceManager.Instance.Get<ILevelService>().LoadLevel(4);
+            }
+            else if(Input.GetKeyDown(KeyCode.A)) 
+            {
+                ServiceManager.Instance.Get<IGameService>().StartSession();
             }
         }
 #endif
@@ -66,6 +76,11 @@ namespace ColorBlast
         private void StartInit() 
         {
             ServiceManager.Instance.Init();
+        }
+
+        private void ReleaseServices() 
+        {
+            ServiceManager.Instance.Release();
         }
 
         private void InitConfig() 

@@ -46,3 +46,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DelayAfterPop: 0.2
   FallAboveHeight: 5
+  MinCameraSize: 6
+  MaxCameraSize: 11

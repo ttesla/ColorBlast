@@ -10,10 +10,10 @@ namespace ColorBlast
     {
         public string Name;
 
-        [Range(5, 9)]
+        [Range(GameConstants.MinBoardSize, GameConstants.MaxBoardSize)]
         public int Width;
 
-        [Range(5, 9)]
+        [Range(GameConstants.MinBoardSize, GameConstants.MaxBoardSize)]
         public int Height;
 
         public List<LevelGoal> Goals;
