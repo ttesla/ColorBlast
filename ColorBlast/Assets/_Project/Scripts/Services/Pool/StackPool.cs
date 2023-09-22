@@ -33,21 +33,20 @@ namespace ColorBlast
         /// </summary>
         public GameObject Get() 
         {
-            GameObject gameObj;
+            GameObject gameObj = null;
 
-            // Return from stack, if empty create new one
-            if(mPoolStack.TryPop(out gameObj)) 
+            if (mPoolStack.Count > 0)
             {
-               // Empty. If true, we should have a valid component.
+                gameObj = mPoolStack.Pop();
             }
-            else 
+            else
             {
                 gameObj = CreateNew();
             }
 
             // Make object active and unparent.
             gameObj.SetActive(true);
-            gameObj.transform.parent = null;
+            gameObj.transform.SetParent(null);
 
             return gameObj;
         }

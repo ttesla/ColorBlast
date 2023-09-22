@@ -12,10 +12,12 @@ namespace ColorBlast
         public event Action LevelCompleted;
         public event Action<List<LevelGoal>> LevelGoalUpdated;
 
-
-
         private LevelData mLevelData;
         private List<LevelGoal> mCurrentGoals;
+        private Level mCurrentLevel;
+        private int mLastLoadedLevelIndex;
+
+        private bool mLevelCompleted;
 
         public LevelService(LevelData levelData) 
         {
@@ -39,16 +41,19 @@ namespace ColorBlast
 
         public void LoadLevel(int levelIndex)
         {
-            if(levelIndex < GetTotalLevelCount()) 
+            mLastLoadedLevelIndex = levelIndex;
+            
+            if (mLastLoadedLevelIndex < GetTotalLevelCount()) 
             {
-                var level = mLevelData.LevelList[levelIndex];
-                CopyCurrentGoals(level);
+                mCurrentLevel = mLevelData.LevelList[mLastLoadedLevelIndex];
+                CopyCurrentGoals(mCurrentLevel);
+                mLevelCompleted = false;
 
-                LevelLoaded?.Invoke(level);
+                LevelLoaded?.Invoke(mCurrentLevel);
             }
             else 
             {
-                Debug.LogError("Invalid level index: " + levelIndex);
+                Debug.LogError("Invalid level index: " + mLastLoadedLevelIndex);
             }
         }
 
@@ -62,8 +67,24 @@ namespace ColorBlast
             return mCurrentGoals;
         }
 
+        public Level GetCurrentLevel()
+        {
+            return mCurrentLevel;
+        }
+
+        public int GetLastLoadedLevelIndex() 
+        {
+            return mLastLoadedLevelIndex;
+        }
+
         public void NotifyTilePop(TileType tileType, int count)
         {
+            // If level is completed, make early return
+            if(mLevelCompleted) 
+            {
+                return;
+            }
+
             var goal = mCurrentGoals.Find(x => x.TargetTile == tileType);
 
             if(goal != null && goal.Count > 0) 
@@ -82,6 +103,7 @@ namespace ColorBlast
             // Check level complete
             if (CheckAllGoalsAreCompleted()) 
             {
+                mLevelCompleted = true;
                 LevelCompleted?.Invoke();
             }
         }

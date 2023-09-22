@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,11 +10,13 @@ namespace ColorBlast
     {
         [Header("Other Windows")]
         [SerializeField] private LevelUI LevelUI;
+        [SerializeField] private InGameUI InGameUI;
 
         [Header("Buttons")]
         [SerializeField] private Button HomeButton;
         [SerializeField] private Button MuteButton;
         [SerializeField] private Button PlayButton;
+        [SerializeField] private Button ReplayButton;
 
         private ILevelService mLevelService;
         private IGameService mGameService;
@@ -23,6 +26,7 @@ namespace ColorBlast
             HomeButton.onClick.AddListener(OnHomeClicked);
             MuteButton.onClick.AddListener(OnMuteClicked);
             PlayButton.onClick.AddListener(OnPlayClicked);
+            ReplayButton.onClick.AddListener(OnReplayClicked);
 
             mLevelService = ServiceManager.Instance.Get<ILevelService>();
             mGameService = ServiceManager.Instance.Get<IGameService>();
@@ -30,25 +34,17 @@ namespace ColorBlast
 
         void OnEnable() 
         {
-            mLevelService.LevelLoaded += OnLevelLoaded;
-            mGameService.GameInited   += OnGameInited;
+            mLevelService.LevelLoaded    += OnLevelLoaded;
+            mLevelService.LevelCompleted += OnLevelCompleted;
+            mGameService.GameInited      += OnGameInited;
+
         }
 
         void OnDisable() 
         {
-            mLevelService.LevelLoaded -= OnLevelLoaded;
-            mGameService.GameInited   -= OnGameInited;
-        }
-
-        private void OnLevelLoaded(Level obj)
-        {
-            // Enable play button
-            PlayButton.gameObject.SetActive(true);
-        }
-
-        private void OnGameInited() 
-        {
-            LevelUI.Open();
+            mLevelService.LevelLoaded    -= OnLevelLoaded;
+            mLevelService.LevelCompleted -= OnLevelCompleted;
+            mGameService.GameInited      -= OnGameInited;
         }
 
         public void Open()
@@ -61,12 +57,36 @@ namespace ColorBlast
             gameObject.SetActive(true);
         }
 
+        private void OnLevelLoaded(Level obj)
+        {
+            // Enable play button
+            PlayButton.gameObject.SetActive(true);
+        }
+
+        private void OnLevelCompleted()
+        {
+            DOVirtual.DelayedCall(0.2f, () =>
+            {
+                // Level completed enable replay button with small delay
+                ReplayButton.gameObject.SetActive(true);
+            });
+        }
+
+        private void OnGameInited()
+        {
+            LevelUI.Open();
+        }
+
         #region Button Callbacks
 
         private void OnHomeClicked() 
         {
-            ServiceManager.Instance.Get<IGameService>().EndSession();
             LevelUI.Open();
+            InGameUI.Close();
+
+            ServiceManager.Instance.Get<IGameService>().EndSession();
+            PlayButton.gameObject.SetActive(false);
+            ReplayButton.gameObject.SetActive(false);
         }
 
         private void OnMuteClicked() 
@@ -76,9 +96,19 @@ namespace ColorBlast
 
         private void OnPlayClicked()
         {
-            ServiceManager.Instance.Get<IGameService>().StartSession();
-            PlayButton.gameObject.SetActive(false);
             LevelUI.Close();
+            InGameUI.Open();
+            PlayButton.gameObject.SetActive(false);
+         
+            ServiceManager.Instance.Get<IGameService>().StartSession();
+        }
+
+        private void OnReplayClicked() 
+        {
+            // Reload current level
+            var lastIndex = mLevelService.GetLastLoadedLevelIndex();
+            mLevelService.LoadLevel(lastIndex);
+            ReplayButton.gameObject.SetActive(false);
         }
 
         #endregion

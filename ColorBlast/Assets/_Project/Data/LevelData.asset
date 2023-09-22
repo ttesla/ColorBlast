@@ -18,49 +18,49 @@ MonoBehaviour:
     Height: 5
     Goals:
     - TargetTile: 0
-      Count: 3
+      Count: 5
     - TargetTile: 1
-      Count: 3
+      Count: 5
     - TargetTile: 2
-      Count: 3
+      Count: 5
     - TargetTile: 3
-      Count: 3
+      Count: 5
   - Name: Warming Up
     Width: 5
     Height: 6
     Goals:
     - TargetTile: 0
-      Count: 5
+      Count: 10
     - TargetTile: 1
-      Count: 6
+      Count: 10
     - TargetTile: 2
-      Count: 7
+      Count: 10
     - TargetTile: 3
-      Count: 8
+      Count: 10
   - Name: Sky is Blue
     Width: 6
     Height: 8
     Goals:
     - TargetTile: 2
-      Count: 20
+      Count: 25
   - Name: Red Baron
     Width: 9
     Height: 9
     Goals:
     - TargetTile: 0
-      Count: 25
+      Count: 50
   - Name: Skyscraper
     Width: 5
     Height: 9
     Goals:
     - TargetTile: 0
-      Count: 10
+      Count: 25
     - TargetTile: 1
-      Count: 10
+      Count: 15
     - TargetTile: 2
-      Count: 10
+      Count: 15
     - TargetTile: 3
-      Count: 10
+      Count: 25
   - Name: Little Square
     Width: 3
     Height: 3

@@ -40,36 +40,6 @@ namespace ColorBlast
             ReleaseServices();
         }
 
-#if UNITY_EDITOR
-        private void Update()
-        {
-            if(Input.GetKeyDown(KeyCode.Q)) 
-            {
-                ServiceManager.Instance.Get<ILevelService>().LoadLevel(0);
-            }
-            else if (Input.GetKeyDown(KeyCode.W))
-            {
-                ServiceManager.Instance.Get<ILevelService>().LoadLevel(1);
-            }
-            else if (Input.GetKeyDown(KeyCode.E))
-            {
-                ServiceManager.Instance.Get<ILevelService>().LoadLevel(2);
-            }
-            else if (Input.GetKeyDown(KeyCode.R))
-            {
-                ServiceManager.Instance.Get<ILevelService>().LoadLevel(3);
-            }
-            else if (Input.GetKeyDown(KeyCode.T))
-            {
-                ServiceManager.Instance.Get<ILevelService>().LoadLevel(4);
-            }
-            else if(Input.GetKeyDown(KeyCode.A)) 
-            {
-                ServiceManager.Instance.Get<IGameService>().StartSession();
-            }
-        }
-#endif
-
         private void AwakeInit() 
         {
             InitConfig();

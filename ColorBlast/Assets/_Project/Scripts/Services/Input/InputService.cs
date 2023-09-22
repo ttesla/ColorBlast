@@ -22,18 +22,16 @@ namespace ColorBlast
             mSessionStarted = false;
             mGameService = ServiceManager.Instance.Get<IGameService>();
             mGameService.SessionStarted += OnSessionStarted;
+            mGameService.SessionEnded   += OnSessionEnded;
             
             Logman.Log("InputService - Init");
-        }
-
-        private void OnSessionStarted()
-        {
-            mSessionStarted = true;
         }
 
         public void Release()
         {
             mGameService.SessionStarted -= OnSessionStarted;
+            mGameService.SessionEnded   -= OnSessionEnded;
+            
             Logman.Log("InputService - Release");
         }
 
@@ -43,6 +41,16 @@ namespace ColorBlast
             {
                 InputUpdate();
             }
+        }
+
+        private void OnSessionStarted()
+        {
+            mSessionStarted = true;
+        }
+
+        private void OnSessionEnded()
+        {
+            mSessionStarted = false;
         }
 
         private void InputUpdate()

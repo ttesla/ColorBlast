@@ -29,6 +29,7 @@ namespace ColorBlast
 
         private BoardHelper mBoardHelper;
         private bool mAllowInput;
+        private bool mSessionEnded;
 
         private void Awake()
         {
@@ -78,16 +79,22 @@ namespace ColorBlast
                 // We can play now.
                 mAllowInput = true;
             });
+
+            mSessionEnded = false;
         }
 
         private void OnGameSessionEnded()
         {
-            if(mBoardHelper != null) 
+            DOVirtual.DelayedCall(DelayAfterPop, () => 
             {
-                mBoardHelper.ClearTheBoard();
-            }
+                if (mBoardHelper != null)
+                {
+                    mBoardHelper.ClearTheBoard();
+                }
+            });
             
             mAllowInput = false;
+            mSessionEnded = true;
         }
 
         #endregion
@@ -143,11 +150,15 @@ namespace ColorBlast
                 PopTiles(popTiles);
 
                 // Give some time for popping animations then make new tiles fall... 
-                DOVirtual.DelayedCall(DelayAfterPop, () => 
+                DOVirtual.DelayedCall(DelayAfterPop, () =>
                 {
-                    AfterPop();
-                }, 
-                false);
+                    // Session may be ended after the last pop, we don't continue then
+                    if (!mSessionEnded) 
+                    {
+                        AfterPop();
+                    }
+                        
+                },false);
             }
         }
 

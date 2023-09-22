@@ -16,16 +16,16 @@ MonoBehaviour:
   - PoolType: 0
     PoolPrefab: {fileID: 3124007662177052763, guid: 26baa897afb49264cb777c25c0d5b352,
       type: 3}
-    Size: 30
+    Size: 20
   - PoolType: 1
     PoolPrefab: {fileID: 3124007662177052763, guid: 63195cf5a6b5ea347a8e741b387be822,
       type: 3}
-    Size: 30
+    Size: 20
   - PoolType: 2
     PoolPrefab: {fileID: 3124007662177052763, guid: 9eaf58e99d3c7af489b0525b8da3bc15,
       type: 3}
-    Size: 30
+    Size: 20
   - PoolType: 3
     PoolPrefab: {fileID: 3124007662177052763, guid: b0365eb14238c394eb13bad087da7971,
       type: 3}
-    Size: 30
+    Size: 20

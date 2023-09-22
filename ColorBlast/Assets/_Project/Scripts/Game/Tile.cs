@@ -32,13 +32,21 @@ namespace ColorBlast
         private const float MoveDuration = 0.3f;
         private const float PopDuration  = 0.2f;
         private PoolType mPoolType;
+        private bool mInited = false;
+
 
         public void Init(PoolType poolType) 
         {
-            mPoolType = poolType;
+            if (mInited) 
+            {
+                return;
+            }
 
             var material = GetComponent<Renderer>().material;
             material.color = TileDat.GetTileColor(TType);
+
+            mPoolType = poolType;
+            mInited = true;
         }
         
         public void SetCoord(int x, int y) 
@@ -81,6 +89,7 @@ namespace ColorBlast
 
         public void Recycle() 
         {
+            transform.DOKill();
             transform.localScale = Vector3.one;
             ServiceManager.Instance.Get<IPoolService>().Return(mPoolType, gameObject);
         }
