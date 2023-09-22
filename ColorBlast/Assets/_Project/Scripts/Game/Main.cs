@@ -44,6 +44,7 @@ namespace ColorBlast
         {
             InitConfig();
             AddServices();
+            LoadGame();
         }
 
         private void StartInit() 
@@ -76,6 +77,11 @@ namespace ColorBlast
             ServiceManager.Instance.Add<IAudioService>(AudioService);
 
             Logman.Log("All services are added!");
+        }
+
+        private void LoadGame() 
+        {
+            ServiceManager.Instance.Get<ISaveService>().Load();
         }
     }
 }

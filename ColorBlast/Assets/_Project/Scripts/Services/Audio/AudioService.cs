@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Audio;
 using Utility;
@@ -14,16 +15,28 @@ namespace ColorBlast
 
         private Dictionary<SfxType, AudioSfx> mSfxDict;
 
+        private ISettingsService mSettingsService;
+
         public void Init()
         {
             FillSfxDictionary();
-            
+
+            mSettingsService = ServiceManager.Instance.Get<ISettingsService>();
+            SetEnableSfx(mSettingsService.GetAudioSettings().SfxIsOn);
+            mSettingsService.SettingsUpdated += OnSettinsUpdated;
+
             Logman.Log("AudioService - Init");
         }
 
         public void Release()
         {
+            mSettingsService.SettingsUpdated -= OnSettinsUpdated;
             Logman.Log("AudioService - Release");
+        }
+
+        private void OnSettinsUpdated()
+        {
+            SetEnableSfx(mSettingsService.GetAudioSettings().SfxIsOn);
         }
 
         private void FillSfxDictionary() 

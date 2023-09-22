@@ -18,8 +18,14 @@ namespace ColorBlast
         [SerializeField] private Button PlayButton;
         [SerializeField] private Button ReplayButton;
 
+        [Header("Sprite Assets")]
+        [SerializeField] private Image ReplayButtonImg;
+        [SerializeField] private Sprite SfxIsOnSprite;
+        [SerializeField] private Sprite SfxIsOffSprite;
+
         private ILevelService mLevelService;
         private IGameService mGameService;
+        private ISettingsService mSettingsService;
 
         void Awake()
         {
@@ -28,23 +34,30 @@ namespace ColorBlast
             PlayButton.onClick.AddListener(OnPlayClicked);
             ReplayButton.onClick.AddListener(OnReplayClicked);
 
-            mLevelService = ServiceManager.Instance.Get<ILevelService>();
-            mGameService = ServiceManager.Instance.Get<IGameService>();
+            mLevelService    = ServiceManager.Instance.Get<ILevelService>();
+            mGameService     = ServiceManager.Instance.Get<IGameService>();
+            mSettingsService = ServiceManager.Instance.Get<ISettingsService>();
+        }
+
+        void Start() 
+        {
+            UpdateSfxSetting();
         }
 
         void OnEnable() 
         {
-            mLevelService.LevelLoaded    += OnLevelLoaded;
-            mLevelService.LevelCompleted += OnLevelCompleted;
-            mGameService.GameInited      += OnGameInited;
-
+            mLevelService.LevelLoaded        += OnLevelLoaded;
+            mLevelService.LevelCompleted     += OnLevelCompleted;
+            mGameService.GameInited          += OnGameInited;
+            mSettingsService.SettingsUpdated += OnSettingsUpdated;
         }
 
         void OnDisable() 
         {
-            mLevelService.LevelLoaded    -= OnLevelLoaded;
-            mLevelService.LevelCompleted -= OnLevelCompleted;
-            mGameService.GameInited      -= OnGameInited;
+            mLevelService.LevelLoaded        -= OnLevelLoaded;
+            mLevelService.LevelCompleted     -= OnLevelCompleted;
+            mGameService.GameInited          -= OnGameInited;
+            mSettingsService.SettingsUpdated -= OnSettingsUpdated;
         }
 
         public void Open()
@@ -77,6 +90,17 @@ namespace ColorBlast
             LevelUI.Open();
         }
 
+        private void OnSettingsUpdated() 
+        {
+            UpdateSfxSetting();
+        }
+
+        private void UpdateSfxSetting() 
+        {
+            var audioSetting = mSettingsService.GetAudioSettings();
+            ReplayButtonImg.sprite = audioSetting.SfxIsOn ? SfxIsOnSprite : SfxIsOffSprite;
+        }
+
         #region Button Callbacks
 
         private void OnHomeClicked() 
@@ -91,7 +115,10 @@ namespace ColorBlast
 
         private void OnMuteClicked() 
         {
+            var audioSetting = mSettingsService.GetAudioSettings();
+            audioSetting.SfxIsOn = !audioSetting.SfxIsOn; // Toggle setting
 
+            mSettingsService.SetAudioSettings(audioSetting);
         }
 
         private void OnPlayClicked()

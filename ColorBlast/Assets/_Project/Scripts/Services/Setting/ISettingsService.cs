@@ -1,9 +1,14 @@
 
 
+
+using System;
+
 namespace ColorBlast
 {
     public interface ISettingsService : IService
     {
-        void Apply();
+        event Action SettingsUpdated;
+        void SetAudioSettings(AudioSetting audioSetting);
+        AudioSetting GetAudioSettings();
     }
 }

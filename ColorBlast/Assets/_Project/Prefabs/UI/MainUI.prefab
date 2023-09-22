@@ -590,7 +590,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LevelUI: {fileID: 0}
+  InGameUI: {fileID: 0}
   HomeButton: {fileID: 6456507836398393517}
   MuteButton: {fileID: 9134077141089842955}
   PlayButton: {fileID: 380501658346157829}
   ReplayButton: {fileID: 1669030603730711219}
+  ReplayButtonImg: {fileID: 6431495304450941649}
+  SfxIsOnSprite: {fileID: 21300000, guid: 75f3bf503b17df648b953bec8dee36f3, type: 3}
+  SfxIsOffSprite: {fileID: 21300000, guid: 14779cf8467b9f14fb5fcbbdb02b87fd, type: 3}
