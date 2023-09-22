@@ -51,6 +51,11 @@ namespace ColorBlast
             }
         }
 
+        public List<Level> GetLevelList()
+        {
+            return mLevelData.LevelList;
+        }
+
         public void NotifyTilePop(TileType tileType, int count)
         {
             var goal = mCurrentGoals.Find(x => x.TargetTile == tileType);
@@ -102,5 +107,7 @@ namespace ColorBlast
             // If we are up to here, all goals are completed
             return true;
         }
+
+      
     }
 }

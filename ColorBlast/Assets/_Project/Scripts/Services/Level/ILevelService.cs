@@ -14,5 +14,6 @@ namespace ColorBlast
         void LoadLevel(int levelIndex);
         int GetTotalLevelCount();
         void NotifyTilePop(TileType tileType, int count);
+        List<Level> GetLevelList();
     }
 }

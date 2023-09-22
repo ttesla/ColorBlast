@@ -6,7 +6,7 @@ namespace ColorBlast
     /// </summary>
     public class GameConstants
     {
-        public const int MinBoardSize = 5;
+        public const int MinBoardSize = 3;
         public const int MaxBoardSize = 9;
     }
 }

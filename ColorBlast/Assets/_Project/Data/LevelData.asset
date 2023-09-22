@@ -61,3 +61,15 @@ MonoBehaviour:
       Count: 10
     - TargetTile: 3
       Count: 10
+  - Name: Dead Board
+    Width: 3
+    Height: 3
+    Goals:
+    - TargetTile: 0
+      Count: 20
+    - TargetTile: 1
+      Count: 20
+    - TargetTile: 2
+      Count: 20
+    - TargetTile: 3
+      Count: 20

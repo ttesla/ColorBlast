@@ -16,6 +16,7 @@ namespace ColorBlast
         [SerializeField] private Button PlayButton;
 
         private ILevelService mLevelService;
+        private IGameService mGameService;
 
         void Awake()
         {
@@ -24,22 +25,30 @@ namespace ColorBlast
             PlayButton.onClick.AddListener(OnPlayClicked);
 
             mLevelService = ServiceManager.Instance.Get<ILevelService>();
+            mGameService = ServiceManager.Instance.Get<IGameService>();
         }
 
         void OnEnable() 
         {
             mLevelService.LevelLoaded += OnLevelLoaded;
+            mGameService.GameInited   += OnGameInited;
         }
 
         void OnDisable() 
         {
             mLevelService.LevelLoaded -= OnLevelLoaded;
+            mGameService.GameInited   -= OnGameInited;
         }
 
         private void OnLevelLoaded(Level obj)
         {
             // Enable play button
             PlayButton.gameObject.SetActive(true);
+        }
+
+        private void OnGameInited() 
+        {
+            LevelUI.Open();
         }
 
         public void Open()
