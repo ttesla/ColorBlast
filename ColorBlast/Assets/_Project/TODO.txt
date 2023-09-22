@@ -1,8 +1,9 @@
 
 
-[ ] Audio  
-[ ] UI for Selecting Map Size
+
 [ ] Settings UI and Service
+
+[ ] Service Init Order
 [ ] Save System
 
 [ ] Special Tile
@@ -14,9 +15,12 @@
 [ ] Dynamic camera size according to the size
 
 
+
 [ ] Write a basic documentation
 [ ] Video
 
+[-] UI for Selecting Map Size (We have levels for this)
+[x] Audio  
 [x] If board is deadlock, reset it
 [x] New cubes spawn and fall logic
 [x] Calculate the amount of tiles for right positions to fall as new tiles
