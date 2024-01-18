@@ -6,16 +6,16 @@ using UnityEngine;
 
 namespace ColorBlast
 {
-    public enum TileType 
+    public enum TileType
     {
         Red,
         Green,
         Blue,
         Yellow,
-        Bomb,
+        Bomb
     }
 
-    public class Tile : MonoBehaviour
+    public abstract class Tile : MonoBehaviour
     {
         [SerializeField] private TileType TileType;
         [SerializeField] private TileData TileDat;
@@ -95,5 +95,11 @@ namespace ColorBlast
             transform.localScale = Vector3.one;
             ServiceManager.Instance.Get<IPoolService>().Return(mPoolType, gameObject);
         }
+
+        /// <summary>
+        /// Returns true if there are any tiles to pop
+        /// Tiles to be popped are filled in popTileList 
+        /// </summary>
+        public abstract bool CheckTilesToPop(Slot[,] boardMap, Tile tile, out List<Tile> popTileList);
     }
 }

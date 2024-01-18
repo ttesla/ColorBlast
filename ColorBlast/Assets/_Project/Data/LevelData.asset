@@ -13,18 +13,6 @@ MonoBehaviour:
   m_Name: LevelData
   m_EditorClassIdentifier: 
   LevelList:
-  - Name: Hello
-    Width: 5
-    Height: 5
-    Goals:
-    - TargetTile: 0
-      Count: 5
-    - TargetTile: 1
-      Count: 5
-    - TargetTile: 2
-      Count: 5
-    - TargetTile: 3
-      Count: 5
   - Name: Warming Up
     Width: 5
     Height: 6
@@ -37,6 +25,18 @@ MonoBehaviour:
       Count: 10
     - TargetTile: 3
       Count: 10
+  - Name: Hello
+    Width: 5
+    Height: 5
+    Goals:
+    - TargetTile: 0
+      Count: 5
+    - TargetTile: 1
+      Count: 5
+    - TargetTile: 2
+      Count: 5
+    - TargetTile: 3
+      Count: 5
   - Name: Sky is Blue
     Width: 6
     Height: 8

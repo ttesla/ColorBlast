@@ -150,11 +150,7 @@ namespace ColorBlast
             List<Tile> popTiles = null;
             bool tilesPopped = false;
 
-            if(mBoardHelper.CheckSpecialTile(tile, out popTiles))
-            {
-                tilesPopped = true;
-            }
-            else if(mBoardHelper.FindConnectedTiles(tile, out popTiles)) 
+            if(tile.CheckTilesToPop(mBoardMap, tile, out popTiles))
             {
                 tilesPopped = true;
             }
@@ -223,7 +219,6 @@ namespace ColorBlast
             // First clear the board, then drop new tiles.
             // But we keep doing this, until we are sure the board is valid
             // This may deadlock the game. So we won't try it forever. 
-
             int loopCounter = 0;
 
             while (true) 

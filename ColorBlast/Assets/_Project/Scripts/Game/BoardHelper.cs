@@ -88,146 +88,6 @@ namespace ColorBlast
             return tile;
         }
 
-        public bool CheckSpecialTile(Tile tile, out List<Tile> popTileList) 
-        {
-            bool result = false;
-            popTileList = new List<Tile>();
-
-            if (tile.TType == TileType.Bomb)
-            {
-                // SELF
-                popTileList.Add(tile);
-
-                // LEFT
-                int nextX = tile.X - 1;
-                int nextY = tile.Y;
-                AddToBombExplosion(nextX, nextY, popTileList);
-
-                // LEFT UP
-                nextX = tile.X - 1;
-                nextY = tile.Y - 1;
-                AddToBombExplosion(nextX, nextY, popTileList);
-
-                // RIGHT
-                nextX = tile.X + 1;
-                nextY = tile.Y;
-                AddToBombExplosion(nextX, nextY, popTileList);
-
-                // RIGHT UP
-                nextX = tile.X + 1;
-                nextY = tile.Y - 1;
-                AddToBombExplosion(nextX, nextY, popTileList);
-
-                // UP
-                nextX = tile.X;
-                nextY = tile.Y - 1;
-                AddToBombExplosion(nextX, nextY, popTileList);
-
-                // DOWN
-                nextX = tile.X;
-                nextY = tile.Y + 1;
-                AddToBombExplosion(nextX, nextY, popTileList);
-
-                // LEFT DOWN
-                nextX = tile.X - 1;
-                nextY = tile.Y + 1;
-                AddToBombExplosion(nextX, nextY, popTileList);
-
-                // RIGHT DOWN
-                nextX = tile.X + 1;
-                nextY = tile.Y + 1;
-                AddToBombExplosion(nextX, nextY, popTileList);
-
-                result = true;
-            }
-
-            return result;
-        }
-
-        private void AddToBombExplosion(int x, int y, List<Tile> popTileList)
-        {
-            if (x >= 0 && x < mWidth &&
-                y >= 0 && y < mHeight)
-            {
-                var slot = mBoardMap[y, x];
-
-                if (!slot.IsEmpty)
-                {
-                    popTileList.Add(slot.TheTile);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Try to find connected tiles to Pop with BFS algorithm
-        /// </summary>
-        public bool FindConnectedTiles(Tile tile, out List<Tile> popTileList)
-        {
-            bool result          = false;
-            popTileList          = new List<Tile>();
-            var targetTileType   = tile.TType;
-            HashSet<int> visited = new HashSet<int>();
-            Queue<Tile> queue    = new Queue<Tile>();
-
-            queue.Enqueue(tile);
-            visited.Add(CoordToIndex(tile.X, tile.Y));
-
-            while (queue.Count > 0)
-            {
-                // Deque and add to pop tile list
-                var currentTile = queue.Dequeue();
-                popTileList.Add(currentTile);
-
-                // Visit neighbors //
-
-                // LEFT
-                int nextX = currentTile.X - 1;
-                int nextY = currentTile.Y;
-                CheckNextTileIsValid(nextX, nextY, targetTileType, visited, queue);
-
-                // RIGHT
-                nextX = currentTile.X + 1;
-                nextY = currentTile.Y;
-                CheckNextTileIsValid(nextX, nextY, targetTileType, visited, queue);
-
-                // UP
-                nextX = currentTile.X;
-                nextY = currentTile.Y - 1;
-                CheckNextTileIsValid(nextX, nextY, targetTileType, visited, queue);
-
-                // DOWN
-                nextX = currentTile.X;
-                nextY = currentTile.Y + 1;
-                CheckNextTileIsValid(nextX, nextY, targetTileType, visited, queue);
-
-            }
-
-            // If we have more than 1 to pop, then its true
-            result = popTileList.Count > 1;
-
-            return result;
-        }
-
-        private void CheckNextTileIsValid(int x, int y, TileType targetTileType, HashSet<int> visited, Queue<Tile> queue)
-        {
-            if (x >= 0 && x < mWidth &&
-                y >= 0 && y < mHeight)
-            {
-                int index = CoordToIndex(x, y);
-
-                if (!visited.Contains(index))
-                {
-                    var slot = mBoardMap[y, x];
-
-                    if (!slot.IsEmpty && slot.TheTile.TType == targetTileType)
-                    {
-                        queue.Enqueue(slot.TheTile);
-                        visited.Add(index);
-                    }
-                }
-            }
-        }
-
         /// <summary>
         /// This makes tiles fall down if they have an empty space (Slot) underneath them.
         /// </summary>
@@ -331,7 +191,6 @@ namespace ColorBlast
             return false;
         }
 
-
         /// <summary>
         /// Tiles record move to position on themselves.
         /// They start to move when move command is applied.
@@ -393,9 +252,9 @@ namespace ColorBlast
             }
         }
 
-        private int CoordToIndex(int x, int y)
+        public static int CoordToIndex(int x, int y, int width)
         {
-            return y * mWidth + x;
+            return y * width + x;
         }
     }
 }
